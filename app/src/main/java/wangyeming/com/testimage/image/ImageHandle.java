@@ -3,32 +3,38 @@ package wangyeming.com.testimage.image;
 import android.content.Context;
 import android.content.Intent;
 
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Created by yeming on 2015/9/22.
  */
 public interface ImageHandle {
 
+    String IAMGE_PATHS = "image_paths";
+
+
     /**
      * 选择一张图片
      * @param context
-     * @param hasTakePhotoItem  是否有拍照选项
+     * @param showTakePhotoItem  是否有拍照选项
+     * @return
      */
-    Intent pickSingleImage(Context context, boolean hasTakePhotoItem);
+    Intent pickSingleImage(Context context, boolean showTakePhotoItem);
 
     /**
      * 选择多张图片
      * @param context
      * @param ImageCount  选择照片数目
-     * @param hasTakePhotoItem  是否有拍照选项
+     * @param showTakePhotoItem  是否有拍照选项
+     * @return
      */
-    Intent pickMultiImage(Context context, int ImageCount, boolean hasTakePhotoItem);
+    Intent pickMultiImage(Context context, int ImageCount, boolean showTakePhotoItem);
 
     /**
      * 预览一组图片
      * @param photoPaths 图片的绝对地址
+     * @return
      */
-    void previewImage(List<String> photoPaths);
+    Intent previewImage(Context context, ArrayList<String> photoPaths);
 
 }
