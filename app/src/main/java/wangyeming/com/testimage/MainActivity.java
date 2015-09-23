@@ -1,15 +1,39 @@
 package wangyeming.com.testimage;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.widget.AdapterView;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.List;
+
+import me.iwf.photopicker.PhotoPickerActivity;
+import wangyeming.com.testimage.image.ImageHandleUtils;
+
+public class MainActivity extends AppCompatActivity
+        implements View.OnClickListener, CompoundButton.OnCheckedChangeListener, AdapterView.OnItemClickListener {
+
+    private static final int REQUEST_CODE = 1;
+
+    private SwitchCompat vTakePhotoSwitch;
+    private SwitchCompat vMultiChooseSwitch;
+    private EditText vImageCount;
+    private ListView vPhoto;
+    private FloatingActionButton vPickImage;
+
+    private List<String> photoPaths = new ArrayList<>();
+
+    private ImageAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,35 +42,68 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+
+        vPickImage = (FloatingActionButton) findViewById(R.id.vPickImage);
+        vTakePhotoSwitch = (SwitchCompat) findViewById(R.id.take_photo_switch);
+        vMultiChooseSwitch = (SwitchCompat) findViewById(R.id.pick_patten_switch);
+        vImageCount = (EditText) findViewById(R.id.image_count_input);
+        vPhoto = (ListView) findViewById(R.id.photos);
+
+        mAdapter = new ImageAdapter(this, photoPaths);
+        vPhoto.setAdapter(mAdapter);
+
+        vPickImage.setOnClickListener(this);
+
+        vMultiChooseSwitch.setOnCheckedChangeListener(this);
+
+        vPhoto.setOnItemClickListener(this);
+    }
+
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        if(id == R.id.vPickImage) {
+            boolean isMultiChoose = vMultiChooseSwitch.isChecked();
+            boolean isTakePhoto = vTakePhotoSwitch.isChecked();
+            if(isMultiChoose) {
+                int imageCount;
+                if(TextUtils.isEmpty(vImageCount.getText())) {
+                    Toast.makeText(this, "默认选择3张", Toast.LENGTH_SHORT).show();
+                    imageCount = 3;
+                } else {
+                    imageCount = Integer.parseInt(vImageCount.getText().toString());
+                }
+                Intent intent = ImageHandleUtils.pickMultiImage(this, imageCount, isTakePhoto);
+                this.startActivityForResult(intent, REQUEST_CODE);
+
+            } else {
+                Intent intent = ImageHandleUtils.pickSingleImage(this, isTakePhoto);
+                this.startActivityForResult(intent, REQUEST_CODE);
             }
-        });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
         }
+    }
 
-        return super.onOptionsItemSelected(item);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
+            if (data != null) {
+                photoPaths.clear();
+                photoPaths.addAll(data.getStringArrayListExtra(PhotoPickerActivity.KEY_SELECTED_PHOTOS));
+                mAdapter.notifyDataSetChanged();
+            }
+        }
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        vImageCount.setEnabled(isChecked ? true : false);
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Intent intent = ImageHandleUtils.previewImage(this, (ArrayList<String>) photoPaths, position);
+        startActivityForResult(intent, REQUEST_CODE);
     }
 }

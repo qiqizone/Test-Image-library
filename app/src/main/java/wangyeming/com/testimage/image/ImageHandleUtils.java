@@ -9,11 +9,10 @@ import me.iwf.photopicker.PhotoPagerActivity;
 import me.iwf.photopicker.utils.PhotoPickerIntent;
 
 /**
+ * 包装PhotoPicker library的工具类
  * Created by yeming on 2015/9/22.
  */
 public final class ImageHandleUtils {
-
-    public static final String IAMGE_PATHS = "image_paths";
 
     /**
      * 选择一张图片
@@ -45,12 +44,13 @@ public final class ImageHandleUtils {
     /**
      * 预览一组图片
      * @param photoPaths 图片的绝对地址
+     * @param currentItem 当前展示的图片order
      * @return
      */
-    public static Intent previewImage(Context context, ArrayList<String> photoPaths) {
+    public static Intent previewImage(Context context, ArrayList<String> photoPaths, int currentItem) {
         Intent intent = new Intent(context, PhotoPagerActivity.class);
-        intent.putExtra(PhotoPagerActivity.EXTRA_CURRENT_ITEM, position);
-        intent.putExtra(IAMGE_PATHS, photoPaths);
+        intent.putExtra(PhotoPagerActivity.EXTRA_CURRENT_ITEM, currentItem);
+        intent.putStringArrayListExtra(PhotoPagerActivity.EXTRA_PHOTOS, photoPaths);
         return intent;
     }
 }
