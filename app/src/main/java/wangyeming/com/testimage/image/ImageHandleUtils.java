@@ -5,7 +5,6 @@ import android.content.Intent;
 
 import java.util.ArrayList;
 
-import me.iwf.photopicker.PhotoPagerActivity;
 import me.iwf.photopicker.utils.PhotoPickerIntent;
 
 /**
@@ -48,9 +47,9 @@ public final class ImageHandleUtils {
      * @return
      */
     public static Intent previewImage(Context context, ArrayList<String> photoPaths, int currentItem) {
-        Intent intent = new Intent(context, PhotoPagerActivity.class);
-        intent.putExtra(PhotoPagerActivity.EXTRA_CURRENT_ITEM, currentItem);
-        intent.putStringArrayListExtra(PhotoPagerActivity.EXTRA_PHOTOS, photoPaths);
+        PreviewIntent intent = new PreviewIntent(context);
+        intent.setCurrentItem(currentItem);
+        intent.setPhotoPaths(photoPaths);
         return intent;
     }
 }
